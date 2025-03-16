@@ -23,10 +23,26 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     console.log("mongodb connected");
+    const database = client.db("solo_db");
+    const jobsCollection = database.collection("jobs");
 
     app.get("/", async (req, res) => {
       res.send("server is running");
     });
+
+    // save a jobdata in db
+    app.post("/add_job", async (req, res) => {
+      const jobData = req.body;
+      const result = await jobsCollection.insertOne(jobData);
+      res.send(result);
+    });
+
+    // get all jobs data from db
+    app.get("/jobs", async (req, res) => {
+      const result = await jobsCollection.find().toArray();
+      res.send(result);
+    });
+
     app.listen(port, () => {
       console.log(`running on the port : ${port}`);
     });
